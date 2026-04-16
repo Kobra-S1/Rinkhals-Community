@@ -828,7 +828,7 @@ class MmuAceController:
             self._disable_ace("filament_hub config not present in query response")
             return
 
-        logging.debug(f"mmu ace config: {json.dumps(result)}")
+        logging.debug(f"mmu ace config: {result}")
 
     async def _subscribe_mmu_ace_status_update(self):
         if not self.ace.enabled:
@@ -846,7 +846,7 @@ class MmuAceController:
             self._disable_ace("filament_hub missing from subscription response")
             return
 
-        logging.debug(f"mmu ace status subscribe: {json.dumps(result)}")
+        logging.debug(f"mmu ace status subscribe: {result}")
 
         filament_hub = result["filament_hub"]
 
@@ -887,7 +887,24 @@ class MmuAceController:
     async def _handle_mmu_ace_status_update(self, status: Dict[str, Any], _: float):
         if "filament_hub" in status:
             filament_hub = status["filament_hub"]
-            logging.debug(f"mmu ace status update: {json.dumps(filament_hub)}")
+            logging.debug(f"mmu ace status update: {filament_hub}")
+
+            if not isinstance(filament_hub, dict):
+                logging.warning(f"Ignoring malformed filament_hub update: {filament_hub}")
+                return
+
+            if "filament_hubs" not in filament_hub:
+                current_filament = filament_hub.get("current_filament")
+
+                if current_filament is not None:
+                    self._sync_loaded_gate_from_current_filament(current_filament)
+                    self._handle_status_update(force=True)
+                else:
+                    logging.debug(
+                        "Ignoring partial filament_hub update without current_filament: "
+                        f"{list(filament_hub.keys())}"
+                    )
+                return
 
             # Fetch temperature info for all gates with material
             # Collect all temperature fetch tasks for parallel execution
@@ -977,6 +994,47 @@ class MmuAceController:
         except Exception as e:
             logging.warning(f"Failed to get filament_info for unit {unit_id} gate {gate_index}: {e}")
             return None
+
+    def _sync_loaded_gate_from_current_filament(self, current_filament: Optional[str]):
+        """Synchronize loaded gate state from ACE Hub current_filament value."""
+        previous_loaded_gate = self.ace.loaded_gate
+        was_loaded = self.ace.filament.pos == FILAMENT_POS_LOADED
+
+        if current_filament is None:
+            return
+
+        if current_filament == "":
+            if self.ace.loaded_gate != TOOL_GATE_UNKNOWN or was_loaded:
+                logging.info("_sync_loaded_gate_from_current_filament: ACE Hub reports no loaded filament, clearing loaded state")
+
+            self.ace.loaded_gate = TOOL_GATE_UNKNOWN
+            self.ace.filament.pos = FILAMENT_POS_UNLOADED
+
+            if self.ace.gate in [TOOL_GATE_UNKNOWN, previous_loaded_gate] or was_loaded:
+                self.ace.gate = TOOL_GATE_UNKNOWN
+                self.ace.tool = TOOL_GATE_UNKNOWN
+            return
+
+        try:
+            parts = current_filament.split("-")
+            if len(parts) != 2:
+                raise ValueError(f"unexpected current_filament format: {current_filament}")
+
+            unit_id = int(parts[0])
+            local_gate = int(parts[1])
+            global_gate = (unit_id * 4) + local_gate
+        except Exception as e:
+            logging.error(f"_sync_loaded_gate_from_current_filament: Failed to parse current_filament '{current_filament}': {e}")
+            return
+
+        self.ace.loaded_gate = global_gate
+
+        if self.ace.filament.pos != FILAMENT_POS_LOADED or self.ace.gate in [TOOL_GATE_UNKNOWN, previous_loaded_gate]:
+            logging.info(f"_sync_loaded_gate_from_current_filament: ACE Hub current_filament='{current_filament}', setting MMU gate={global_gate}")
+            self.ace.gate = global_gate
+            self.ace.tool = global_gate  # Tool = Gate for ACE
+
+        self.ace.filament.pos = FILAMENT_POS_LOADED
 
     def _set_ace_status(self, filament_hub):
         # set units
@@ -1073,32 +1131,8 @@ class MmuAceController:
             self.ace.units.append(unit)
 
         # Sync MMU status with ACE Hub current_filament state
-        # Only sync if MMU thinks filament is loaded (pos == LOADED) but ACE Hub disagrees
         current_filament = filament_hub.get("current_filament", "")
-
-        # If MMU thinks filament is LOADED but ACE Hub says nothing loaded -> sync (reset)
-        if self.ace.filament.pos == FILAMENT_POS_LOADED and (not current_filament or current_filament == ""):
-            logging.info(f"_set_ace_status: MMU thinks loaded but ACE Hub current_filament is empty, resetting MMU status")
-            self.ace.gate = -1
-            self.ace.tool = -1
-            self.ace.filament.pos = FILAMENT_POS_UNLOADED
-        # If ACE Hub says filament loaded but MMU doesn't know -> sync (set loaded)
-        elif current_filament and current_filament != "" and self.ace.filament.pos != FILAMENT_POS_LOADED:
-            # Parse current_filament (format: "unit_id-gate_index" like "0-1")
-            try:
-                parts = current_filament.split("-")
-                if len(parts) == 2:
-                    unit_id = int(parts[0])
-                    local_gate = int(parts[1])
-                    # Calculate global gate index
-                    global_gate = (unit_id * 4) + local_gate
-                    logging.info(f"_set_ace_status: ACE Hub current_filament='{current_filament}', setting MMU gate={global_gate}")
-                    self.ace.gate = global_gate
-                    self.ace.tool = global_gate  # Tool = Gate for ACE
-                    self.ace.filament.pos = FILAMENT_POS_LOADED
-            except Exception as e:
-                logging.error(f"_set_ace_status: Failed to parse current_filament '{current_filament}': {e}")
-        # Otherwise: MMU status and ACE Hub agree, or MMU is in selection state (gate >= 0 but not loaded) - don't interfere
+        self._sync_loaded_gate_from_current_filament(current_filament)
 
         self._handle_status_update(force=True)
 
@@ -1250,7 +1284,7 @@ class MmuAceController:
             vendor = "Anycubic",
             version = "1.0",
             num_gates = len(unit.gates),
-            first_gate = 0,
+            first_gate = sum(len(u.gates) for u in self.ace.units[:index]),
             selector_type = "VirtualSelector",
             variable_rotation_distances = False,
             variable_bowden_lengths = False,
@@ -1700,10 +1734,11 @@ class MmuAcePatcher:
             return None
 
         # Determine local gate index (GoKlipper's FEED_FILAMENT uses INDEX 0-3, not global gate)
+        ace_id = gate // 4
         local_index = gate % 4
 
         # Build G-code command for GoKlipper
-        gcode = f"FEED_FILAMENT INDEX={local_index} LENGTH={int(length)} SPEED={int(speed)}"
+        gcode = f"FEED_FILAMENT ID={ace_id} INDEX={local_index} LENGTH={int(length)} SPEED={int(speed)}"
 
         try:
             # Send directly to GoKlipper via G-code
@@ -1856,10 +1891,11 @@ class MmuAcePatcher:
             return None
 
         # Determine local gate index (GoKlipper's UNWIND_FILAMENT uses INDEX 0-3, not global gate)
+        ace_id = gate // 4
         local_index = gate % 4
 
         # Build G-code command for GoKlipper
-        gcode = f"UNWIND_FILAMENT INDEX={local_index} LENGTH={int(length)} SPEED={int(speed)}"
+        gcode = f"UNWIND_FILAMENT ID={ace_id} INDEX={local_index} LENGTH={int(length)} SPEED={int(speed)}"
 
         try:
             # Send directly to GoKlipper via G-code
@@ -1906,10 +1942,11 @@ class MmuAcePatcher:
             return None
 
         # Determine local gate index (GoKlipper's UNWIND_FILAMENT uses INDEX 0-3, not global gate)
+        ace_id = gate // 4
         local_index = gate % 4
 
         # Build G-code command for GoKlipper (EJECT is just UNWIND with longer distance)
-        gcode = f"UNWIND_FILAMENT INDEX={local_index} LENGTH={int(length)} SPEED={int(speed)}"
+        gcode = f"UNWIND_FILAMENT ID={ace_id} INDEX={local_index} LENGTH={int(length)} SPEED={int(speed)}"
 
         try:
             # Send directly to GoKlipper via G-code
@@ -1985,7 +2022,20 @@ class MmuAcePatcher:
         return None  # Don't execute original command
 
     async def _on_gcode_mmu_recover(self, args: dict[str, str | None], delegate):
-        """Recover MMU state - refresh ACE status and RFID data"""
+        """Recover MMU state by refreshing ACE status and RFID data."""
+
+        if args:
+            unsupported = ", ".join(
+                f"{key}={value}" if value is not None else key
+                for key, value in sorted(args.items())
+            )
+            message = (
+                f"MMU_RECOVER: unsupported parameters ({unsupported}). "
+                "This command only refreshes ACE status. Use MMU_SELECT, MMU_LOAD, or MMU_UNLOAD for manual changes."
+            )
+            logging.error(message)
+            await self._send_gcode_response(message)
+            return None
 
         # Trigger full status update to refresh all ACE data
         self.ace_controller._handle_status_update(force=True)

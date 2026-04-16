@@ -17,15 +17,23 @@ By using Rinkhals, you will keep all stock Anycubic features (print screen, Anyc
 - [Apps system](https://github.com/jbatonnet/Rinkhals.apps) (OctoEverywhere, Cloudflare, Tailscale, ...)
 
 Latest version will likely support the two latest firmwares from Anycubic, unless specified. For older firmware please check older releases.
-Here are the suported printers and firmwares with latest Rinkhals release:
+Here are the supported GoKlipper / K3-family printers and firmwares with the latest Rinkhals release:
 | Model  | Tested firmwares | Notes |
 | -- | -- | -- |
 | Kobra 3 (+ combo) | `2.4.4.7` `2.4.5` `2.4.6.7` |
 | Kobra 2 Pro | `3.1.2.3` `3.1.4` | Only with mainboard [Trigorilla Spe **B** v1.0.x](https://1coderookie.github.io/Kobra2ProInsights/hardware/mainboard/#trigorilla_spe_b_v10x-stock-new-revision). `3.1.4` seems to be buggy for some people |
-| Kobra S1 (+ combo) | `2.5.8.8` `2.5.9.9` `2.6.0.0` `2.7.0.7` `2.7.0.9` |
+| Kobra S1 (+ combo) | `2.6.0.0` `2.7.0.9` |
 | Kobra 3 Max (+ combo) | `2.5.1.3` `2.5.1.7` |
 | Kobra 3 V2 (+ combo) | `1.1.0.1` `1.1.0.4` |
-| Kobra S1 Max (+ combo) | `2.1.6` |
+| Kobra S1 Max (+ combo) | `2.1.6` `2.6.6` 🔴`2.6.9.3`🔴 |
+
+🔴 - in testing, not yet ready
+
+The K4-family currently has a separate status:
+
+| Model | Status | Notes |
+| -- | -- | -- |
+| Kobra X | Not supported | Uses the `KlipperC++` / K4 software base and is currently blocked by SWU RSA signature verification. See the [Kobra X documentation](https://jbatonnet.github.io/Rinkhals/printers/kobra-x/) for details. |
 
 ## Kobra X status
 
@@ -34,6 +42,8 @@ Some Kobra X firmware packages are publicly available and the SWU password has a
 However, Anycubic moved from the K3 software base (GoKlipper) to a K4 software base using a C++ Klipper port. Because of this, Kobra X support is not expected to be a simple port of the current Rinkhals stack.
 
 In addition, the SWU update flow requires a trusted certificate for package acceptance. Until a reliable bypass is discovered, SWU-based firmware injection similar to Rinkhals is not currently feasible on Kobra X.
+
+## General Information
 
 In case you're wondering this project is named after rinkhals, a sub-species of Cobras ... Kobra ... Rinkhals 👏
 
@@ -133,12 +143,14 @@ If you want to help Rinkhals and contribute, whether it's code, documentation or
 Current maintainers:
 - **jbatonnet**
 - **martinbogo**
-- **Antitriad**
+- **antirad**
   
 Special thanks to those people for providing the base research and helping support for more printers:
 - **utkabobr** (https://github.com/utkabobr/DuckPro-Kobra3)
 - **systemik** (https://github.com/systemik/Kobra3-Firmware)
-- **moosbewohner** for Kobra 2 Pro support (https://github.com/moosbewohner/Rinkhals)
-- **Kalenell** and **woswai1337** for Kobra S1 support
-- **evil_santa**, **CalmFrog**, **basvd**, **_René**, **RadioRadio** and more for Kobra 3 Max support
-- Anycubic for the cool printer and the few OSS items (https://github.com/ANYCUBIC-3D/Kobra)
+- **moosbewohner** for Kobra 2 Pro support. (https://github.com/moosbewohner/Rinkhals)
+- **Kalenell** and **woswai1337** for Kobra S1 support.
+- **evil_santa**, **CalmFrog**, **basvd**, **_René**, **RadioRadio** and more for Kobra 3 Max support.
+- **AndrewS** for ethernet adapters USB testing and Kobra X firmware dump.
+- **Ac_K** for passwords and technical discovery of Kobra X.
+- Anycubic for the cool printer and the few OSS items. (https://github.com/ANYCUBIC-3D/Kobra)
