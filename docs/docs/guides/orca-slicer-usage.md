@@ -1,5 +1,5 @@
 ---
-Orca Slicer Usage
+title: Orca Slicer Usage
 ---
 
 This guide covers only the printers: Kobra 3, Kobra S1 (Combo) because only those have presets in OrcaSlicer. 

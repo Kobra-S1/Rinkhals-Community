@@ -35,4 +35,4 @@ Steps to reproduce the behavior:
 **Debug bundle / Logs**
 
 Generate a debug bundle to collect logs on your printer before posting a new issue.
-Instructions are available here: https://jbatonnet.github.io/Rinkhals/guides/generate-debug-bundle/
+Instructions are available here: https://rinkhals-community.github.io/Rinkhals/guides/generate-debug-bundle/
