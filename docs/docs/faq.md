@@ -50,7 +50,7 @@ You have to disable and stop the app to make the camera work in Anycubic apps.
 ## Can I use OctoApp with Rinkhals?
 Yes, Rinkhals supports OctoApp out of the box. To work properly, OctoApp needs the Moonraker app and one of Mainsail and Fluidd app to be enabled.
 
-You don’t need the octoapp companion from this repo: [Rinkhals.apps](https://github.com/jbatonnet/Rinkhals.apps/) for OctoApp to work. This companion app will allow you to get live notifications if this is something you want.
+You don’t need the octoapp companion from this repo: [Rinkhals.apps](https://github.com/rinkhals-community/Rinkhals.apps/) for OctoApp to work. This companion app will allow you to get live notifications if this is something you want.
 
 ## I cannot see my camera in OctoApp / Mainsail / Fluidd
 
@@ -65,7 +65,7 @@ The code modifications are already in Rinkhals.
 If Rinkhals is running on your printer, you can already connect to port 22 on your printer.
 
 If you’re running stock firmware or any other, you’ll need to use the SSH SWU tool. This tool will start a SSH server on port 2222 on any firmware at any time.
-1. Go to the releases page: [https://github.com/jbatonnet/Rinkhals/releases](https://github.com/jbatonnet/Rinkhals/releases)
+1. Go to the releases page: [https://github.com/rinkhals-community/Rinkhals/releases](https://github.com/rinkhals-community/Rinkhals/releases)
 2. Download the right SWU tools for your printer (tools-xxx.zip)
 3. Extract and get the SSH tool you want
 4. Copy the tool as `update.swu` on a FAT32 USB drive in a `aGVscF9zb3Nf` directory (same as during Rinkhals installation)

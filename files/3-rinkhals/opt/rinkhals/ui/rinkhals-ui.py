@@ -86,7 +86,7 @@ if USING_SIMULATOR:
     def disable_app(app): pass
     def start_app(app, timeout): pass
     def stop_app(app): pass
-    def get_app_property(app, property): return 'https://github.com/jbatonnet/Rinkhals' if property == 'link_output' else ''
+    def get_app_property(app, property): return 'https://github.com/rinkhals-community/Rinkhals' if property == 'link_output' else ''
     def set_app_property(app, property, value): pass
     def set_temporary_app_property(app, property, value): pass
     def remove_app_property(app, property): pass

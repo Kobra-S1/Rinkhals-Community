@@ -282,7 +282,7 @@ class Rinkhals:
         
         try:
             import requests
-            response = requests.get(f'https://api.github.com/repos/jbatonnet/Rinkhals/releases?per_page=20', timeout=5)
+            response = requests.get(f'https://api.github.com/repos/rinkhals-community/Rinkhals/releases?per_page=20', timeout=5)
             if response.status_code == 200:
                 releases = response.json()
                 releases.sort(key=lambda r: r.get('published_at', ''), reverse=True)
@@ -658,7 +658,7 @@ class Diagnostic:
 # Apps management
 
 appsRepositories = [
-    'https://raw.githubusercontent.com/jbatonnet/Rinkhals.apps/refs/heads/master/manifest.json'
+    'https://raw.githubusercontent.com/rinkhals-community/Rinkhals.apps/refs/heads/master/manifest.json'
 ]
 
 

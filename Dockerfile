@@ -35,7 +35,7 @@
 # Seeding cache for Github Actions:
 # - docker login ghcr.io <etc...>
 # - docker buildx create --name rinkhals-builder --driver docker-container
-# - docker build --builder rinkhals-builder --cache-to type=registry,mode=max,ref=ghcr.io/jbatonnet/rinkhals:buildcache --output type=cacheonly .
+# - docker build --builder rinkhals-builder --cache-to type=registry,mode=max,ref=ghcr.io/rinkhals-community/rinkhals:buildcache --output type=cacheonly .
 # - Note: Using a different builder requires a full rebuild, so make it default for development if you want to avoid that.
 #
 # Note: On Windows, all files copied to Docker will have +x set by default (due to WSL). To avoid inconsistency in cache keys between Windows and
@@ -130,7 +130,7 @@ EOT
 
 ###############################################################
 # build-python-armv7 builds Python dependencies that require ARMv7 compilation
-FROM --platform=linux/arm/v7 ghcr.io/jbatonnet/armv7-uclibc:rinkhals AS build-python-armv7
+FROM --platform=linux/arm/v7 ghcr.io/rinkhals-community/armv7-uclibc:rinkhals AS build-python-armv7
 
 COPY ./build/2-python/get-packages.sh /build/2-python/get-packages.sh
 RUN --mount=type=cache,sharing=locked,target=/root/.cache/pip \
@@ -175,7 +175,7 @@ RUN chmod +x /build/get-moonraker.sh && \
 
 ###############################################################
 # app-moonraker-armv7 builds Moonraker dependencies that require ARMv7 compilation
-FROM --platform=linux/arm/v7 ghcr.io/jbatonnet/armv7-uclibc:rinkhals AS app-moonraker-armv7
+FROM --platform=linux/arm/v7 ghcr.io/rinkhals-community/armv7-uclibc:rinkhals AS app-moonraker-armv7
 
 COPY --from=app-moonraker /files/4-apps/ /files/4-apps/
 COPY ./build/4-apps/40-moonraker/get-packages.sh /build/4-apps/40-moonraker/get-packages.sh

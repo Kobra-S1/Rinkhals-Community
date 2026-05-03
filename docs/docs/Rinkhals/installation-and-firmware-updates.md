@@ -52,7 +52,7 @@ On the Kobra series of 3D printer, it's possible to sideload .swu files to insta
 ## Rinkhals installation
 
 - Make sure your printer firmware is supported (as described on the home page and on the releases page)
-- Download the version of Rinkhals you want to install from the [Releases](https://github.com/jbatonnet/Rinkhals/releases)
+- Download the version of Rinkhals you want to install from the [Releases](https://github.com/rinkhals-community/Rinkhals/releases)
 - Follow the installation steps above
 
 ### If you have a Kobra 3 series printer:

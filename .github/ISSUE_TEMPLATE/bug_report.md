@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 > [!WARNING]
-> If you have a question or a bug, look for existing issues and use DeepWiki to ask your question: https://deepwiki.com/jbatonnet/Rinkhals
+> If you have a question or a bug, look for existing issues and use DeepWiki to ask your question: https://deepwiki.com/rinkhals-community/Rinkhals
 
 > [!NOTE]
 > Please include as much details as possible and help the maintainers. A bug report only saying "X doesn't work" will end up being frustrating for everyone and not helpful.

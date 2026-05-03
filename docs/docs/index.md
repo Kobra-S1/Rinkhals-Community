@@ -30,7 +30,7 @@ These printers are currently compatible with Rinkhals:
 
 ## Getting Started
 
-The main project is located on GitHub: [https://github.com/jbatonnet/Rinkhals](https://github.com/jbatonnet/Rinkhals)<br />
+The main project is located on GitHub: [https://github.com/rinkhals-community/Rinkhals](https://github.com/rinkhals-community/Rinkhals)<br />
 To quickly start using Rinkhals, check the [quick start guide](guides/rinkhals-quick-start.md)
 
 If you prefer a video, [Kanrog](https://www.youtube.com/@kanrogcreations) on Discord made a video explaining how to install Rinkhals:
@@ -54,5 +54,5 @@ Please check the [FAQ](faq.md) for commonly asked questions about Rinkhals.
 
 ## Useful Links
 
-- Rinkhals repository: [https://github.com/jbatonnet/Rinkhals](https://github.com/jbatonnet/Rinkhals)
-- Rinkhals apps repository: [https://github.com/jbatonnet/Rinkhals.apps](https://github.com/jbatonnet/Rinkhals.apps)
+- Rinkhals repository: [https://github.com/rinkhals-community/Rinkhals](https://github.com/rinkhals-community/Rinkhals)
+- Rinkhals apps repository: [https://github.com/rinkhals-community/Rinkhals.apps](https://github.com/rinkhals-community/Rinkhals.apps)

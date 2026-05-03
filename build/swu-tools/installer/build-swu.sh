@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # From a Windows machine:
-#   docker run --rm -it -e KOBRA_MODEL_CODE="K3" -v .\build:/build -v .\files:/files ghcr.io/jbatonnet/rinkhals/build /build/swu-tools/installer/build-swu.sh
+#   docker run --rm -it -e KOBRA_MODEL_CODE="K3" -v .\build:/build -v .\files:/files ghcr.io/rinkhals-community/rinkhals/build /build/swu-tools/installer/build-swu.sh
 #   docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-#   docker run --platform=linux/arm/v7 --rm -it -e KOBRA_MODEL_CODE="K3" -v .\build:/build -v .\files:/files ghcr.io/jbatonnet/armv7-uclibc:rinkhals /build/swu-tools/installer/build-swu.sh
+#   docker run --platform=linux/arm/v7 --rm -it -e KOBRA_MODEL_CODE="K3" -v .\build:/build -v .\files:/files ghcr.io/rinkhals-community/armv7-uclibc:rinkhals /build/swu-tools/installer/build-swu.sh
 
 
 if [ "$KOBRA_MODEL_CODE" = "" ]; then

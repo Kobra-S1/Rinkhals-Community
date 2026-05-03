@@ -1,5 +1,5 @@
 # From a Windows machine:
-#   docker run --rm -it -v .\files:/files -w /files/3-rinkhals/opt/rinkhals/patches ghcr.io/jbatonnet/rinkhals/build python3 ../scripts/create-patch.py .
+#   docker run --rm -it -v .\files:/files -w /files/3-rinkhals/opt/rinkhals/patches ghcr.io/rinkhals-community/rinkhals/build python3 ../scripts/create-patch.py .
 
 import os
 import json

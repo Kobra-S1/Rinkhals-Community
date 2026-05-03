@@ -720,7 +720,7 @@ class Kobra:
 
                     setattr(self, '_last_tracked_state', state)
 
-                    # Ensures same string memory location for Moonraker job_state check (https://github.com/jbatonnet/Rinkhals/issues/118#issuecomment-2980916709)
+                    # Ensures same string memory location for Moonraker job_state check (https://github.com/rinkhals-community/Rinkhals/issues/118#issuecomment-2980916709)
                     if state not in self._states_cache:
                         self._states_cache.append(state)
                     state = [ s for s in self._states_cache if s == state ][0]

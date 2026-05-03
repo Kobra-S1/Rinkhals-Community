@@ -12,4 +12,4 @@ title: Anycubic Kobra 3 V2
 
 ## Firmware history
 
-Check https://github.com/jbatonnet/Rinkhals.Firmwares/blob/main/manifests-anycubic/manifest-k3v2.json
+Check https://github.com/rinkhals-community/Rinkhals.Firmwares/blob/main/manifests-anycubic/manifest-k3v2.json
