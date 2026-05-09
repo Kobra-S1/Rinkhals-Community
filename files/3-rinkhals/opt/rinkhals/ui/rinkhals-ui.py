@@ -876,8 +876,10 @@ class RinkhalsUiApp(BaseApp):
 
         # Style keyboard to match dark theme better
         keyboard.set_style_bg_color(lv.color_darken(lvr.COLOR_BACKGROUND, 16), lv.STATE.DEFAULT)
-        keyboard.set_style_bg_color(lvr.COLOR_BACKGROUND, lv.PART.ITEMS | lv.STATE.DEFAULT)
-        keyboard.set_style_text_color(lvr.COLOR_TEXT, lv.PART.ITEMS | lv.STATE.DEFAULT)
+        # Handle different LVGL part constants across versions
+        part_items = getattr(lv.PART, 'ITEMS', 0x00030000)
+        keyboard.set_style_bg_color(lvr.COLOR_BACKGROUND, part_items | lv.STATE.DEFAULT)
+        keyboard.set_style_text_color(lvr.COLOR_TEXT, part_items | lv.STATE.DEFAULT)
 
         def keyboard_event_cb(e):
             code = e.get_code()
