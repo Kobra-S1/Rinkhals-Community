@@ -469,6 +469,15 @@ class RinkhalsUiApp(BaseApp):
             if self.modal_selection:
                 self.modal_selection.panel_selection = None
 
+            self.modal_text_input = lvr.panel(self.root_modal)
+            if self.modal_text_input:
+                self.modal_text_input.add_flag(lv.OBJ_FLAG.HIDDEN)
+                self.modal_text_input.set_size(lv.pct(100), lv.pct(100))
+                self.modal_text_input.set_style_pad_all(0, lv.STATE.DEFAULT)
+                self.modal_text_input.set_style_bg_color(lvr.COLOR_BACKGROUND, lv.STATE.DEFAULT)
+                self.modal_text_input.set_style_bg_opa(lv.OPA.COVER, lv.STATE.DEFAULT)
+                self.modal_text_input.panel_content = None
+
     def show_screen(self, screen):
         super().show_screen(screen)
 
@@ -754,10 +763,14 @@ class RinkhalsUiApp(BaseApp):
                 button_edit.set_size(lv.dpx(55), lv.dpx(55))
                 button_edit.set_style_min_width(0, lv.STATE.DEFAULT)
 
-                if type == 'text':
-                    button_edit.set_state(lv.STATE.DISABLED, True)
-                elif type == 'number':
-                    button_edit.set_state(lv.STATE.DISABLED, True)
+                if type in ['text', 'number']:
+                    # button_edit.set_state(lv.STATE.DISABLED, True)
+                    def update_text_value(new_value, app=app, property=p, label_value=label_value):
+                        set_app_property(app, property, new_value)
+                        label_value.set_text(str(new_value))
+
+                    is_number = (type == 'number')
+                    button_edit.add_event_cb(lambda e, t=display_name, v=value, num=is_number, cb=update_text_value: self.show_text_dialog(t, v, num, cb), lv.EVENT_CODE.CLICKED, None)
                 elif type == 'enum':
                     options = app_properties[p].get('options')
                     if len(options) == 2 and sorted(options)[0].lower() == 'false' and sorted(options)[1].lower() == 'true':
@@ -817,6 +830,59 @@ class RinkhalsUiApp(BaseApp):
         button_reset.set_width(lv.pct(100))
         button_reset.set_text('Reset to default')
         button_reset.add_event_cb(lambda e: reset_default(), lv.EVENT_CODE.CLICKED, None)
+        
+    def show_text_dialog(self, title, initial_value, is_number, select_callback=None):
+        if self.modal_text_input.panel_content:
+            self.modal_text_input.panel_content.delete()
+
+        self.modal_text_input.panel_content = lvr.panel(self.modal_text_input)
+        self.modal_text_input.panel_content.set_size(lv.pct(100), lv.pct(100))
+        self.modal_text_input.panel_content.set_style_pad_all(lv.dpx(10), lv.STATE.DEFAULT)
+        self.modal_text_input.panel_content.set_flex_flow(lv.FLEX_FLOW.COLUMN)
+        self.modal_text_input.panel_content.set_flex_align(lv.FLEX_ALIGN.START, lv.FLEX_ALIGN.CENTER, lv.FLEX_ALIGN.CENTER)
+
+        label_title = lvr.title(self.modal_text_input.panel_content)
+        label_title.set_text(title)
+        label_title.set_style_margin_bottom(lv.dpx(10), lv.STATE.DEFAULT)
+
+        textarea = lv.textarea(self.modal_text_input.panel_content)
+        textarea.set_text(str(initial_value) if initial_value else "")
+        textarea.set_one_line(True)
+        textarea.set_width(lv.pct(95))
+        textarea.set_style_text_font(lvr.get_font_text(), lv.STATE.DEFAULT)
+        # Add basic style to textarea to match the theme
+        textarea.set_style_bg_color(lv.color_lighten(lvr.COLOR_BACKGROUND, 16), lv.STATE.DEFAULT)
+        textarea.set_style_text_color(lvr.COLOR_TEXT, lv.STATE.DEFAULT)
+        textarea.set_style_border_width(1, lv.STATE.DEFAULT)
+        textarea.set_style_border_color(lv.color_lighten(lvr.COLOR_BACKGROUND, 48), lv.STATE.DEFAULT)
+        
+        keyboard = lv.keyboard(self.modal_text_input.panel_content)
+        keyboard.set_textarea(textarea)
+        if is_number:
+            keyboard.set_mode(lv.KEYBOARD_MODE.NUMBER)
+        keyboard.set_size(lv.pct(100), lv.pct(55))
+        keyboard.set_align(lv.ALIGN.BOTTOM_MID)
+
+        # Style keyboard to match dark theme better
+        keyboard.set_style_bg_color(lv.color_darken(lvr.COLOR_BACKGROUND, 16), lv.STATE.DEFAULT)
+        keyboard.set_style_bg_color(lvr.COLOR_BACKGROUND, lv.PART.ITEMS | lv.STATE.DEFAULT)
+        keyboard.set_style_text_color(lvr.COLOR_TEXT, lv.PART.ITEMS | lv.STATE.DEFAULT)
+
+        def keyboard_event_cb(e):
+            code = e.get_code()
+            if code == lv.EVENT_CODE.READY or code == lv.EVENT_CODE.CANCEL:
+                self.hide_modal()
+                if code == lv.EVENT_CODE.READY and select_callback:
+                    select_callback(textarea.get_text())
+
+        keyboard.add_event_cb(keyboard_event_cb, lv.EVENT_CODE.READY, None)
+        keyboard.add_event_cb(keyboard_event_cb, lv.EVENT_CODE.CANCEL, None)
+
+        self.root_modal.clear_event_cb()
+        self.root_modal.add_event_cb(lambda e: self.hide_modal(), lv.EVENT_CODE.CLICKED, None)
+        
+        self.show_modal(self.modal_text_input)
+
     def show_selection_dialog(self, options, select_callback=None):
         if self.modal_selection.panel_selection:
             self.modal_selection.panel_selection.delete()
