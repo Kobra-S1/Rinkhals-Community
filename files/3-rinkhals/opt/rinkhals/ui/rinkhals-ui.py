@@ -878,8 +878,9 @@ class RinkhalsUiApp(BaseApp):
         keyboard.set_style_bg_color(lv.color_darken(lvr.COLOR_BACKGROUND, 16), lv.STATE.DEFAULT)
         # Handle different LVGL part constants across versions
         part_items = getattr(lv.PART, 'ITEMS', 0x00030000)
-        keyboard.set_style_bg_color(lvr.COLOR_BACKGROUND, part_items | lv.STATE.DEFAULT)
-        keyboard.set_style_text_color(lvr.COLOR_TEXT, part_items | lv.STATE.DEFAULT)
+        state_default = getattr(lv.STATE.DEFAULT, 'value', int(lv.STATE.DEFAULT)) if hasattr(lv.STATE, 'DEFAULT') else 0
+        keyboard.set_style_bg_color(lvr.COLOR_BACKGROUND, part_items | state_default)
+        keyboard.set_style_text_color(lvr.COLOR_TEXT, part_items | state_default)
 
         def keyboard_event_cb(e):
             code = e.get_code()
