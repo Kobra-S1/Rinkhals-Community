@@ -770,7 +770,7 @@ class RinkhalsUiApp(BaseApp):
                         label_value.set_text(str(new_value))
 
                     is_number = (type == 'number')
-                    button_edit.add_event_cb(lambda e, t=display_name, v=value, num=is_number, cb=update_text_value: self.show_text_dialog(t, v, num, cb), lv.EVENT_CODE.CLICKED, None)
+                    button_edit.add_event_cb(lambda e, t=display_name, v=value, num=is_number, cb=update_text_value: self.show_input_text_dialog(t, v, num, cb), lv.EVENT_CODE.CLICKED, None)
                 elif type == 'enum':
                     options = app_properties[p].get('options')
                     if len(options) == 2 and sorted(options)[0].lower() == 'false' and sorted(options)[1].lower() == 'true':
@@ -831,7 +831,7 @@ class RinkhalsUiApp(BaseApp):
         button_reset.set_text('Reset to default')
         button_reset.add_event_cb(lambda e: reset_default(), lv.EVENT_CODE.CLICKED, None)
         
-    def show_text_dialog(self, title, initial_value, is_number, select_callback=None):
+    def show_input_text_dialog(self, title, initial_value, is_number, select_callback=None):
         if self.modal_text_input.panel_content:
             self.modal_text_input.panel_content.delete()
 
@@ -859,9 +859,20 @@ class RinkhalsUiApp(BaseApp):
         keyboard = lv.keyboard(self.modal_text_input.panel_content)
         keyboard.set_textarea(textarea)
         if is_number:
-            keyboard.set_mode(lv.KEYBOARD_MODE.NUMBER)
+            try:
+                keyboard.set_mode(lv.keyboard.MODE.NUMBER)
+            except AttributeError:
+                try:
+                    keyboard.set_mode(lv.KEYBOARD_MODE.NUMBER)
+                except AttributeError:
+                    pass
+        
+        # Flex layout ignores absolute align, so we don't use set_align() here.
+        # Instead, we just set the desired size and flex handles placement.
         keyboard.set_size(lv.pct(100), lv.pct(55))
-        keyboard.set_align(lv.ALIGN.BOTTOM_MID)
+
+        # Add flags to ensure the modal can receive touches and won't assert
+        keyboard.add_flag(lv.OBJ_FLAG.CLICKABLE)
 
         # Style keyboard to match dark theme better
         keyboard.set_style_bg_color(lv.color_darken(lvr.COLOR_BACKGROUND, 16), lv.STATE.DEFAULT)
