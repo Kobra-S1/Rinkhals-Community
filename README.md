@@ -63,7 +63,7 @@ Since people have been asking, I accept donations but please remember that I wor
 > **Make sure you're confident tweaking your printer and you understand what you're doing. I'm not responsible if you brick your printer (even if there's some [documentation](https://rinkhals-community.github.io/Rinkhals/printers/recover-boot-issues/)) about that)**
 
 > [!CAUTION]
-> Many users want to change their Klipper printer configuration (the printer.cfg file). I strongly advise not modifying the stock printer configuration. Rinkhals offers additional protection you don't have while modifying directly your printer configuration. **I won't offer any support** and **your printer might not work properly or not boot anymore**. Check the documentation for more information: [Printer configuration](https://rinkhals-community.github.io/Rinkhals/Rinkhals/printer-configuration/)
+> Many users want to change their Klipper printer configuration (the printer.cfg file). I strongly advise not modifying the stock printer configuration. Rinkhals offers additional protection you don't have while modifying directly your printer configuration. **I won't offer any support** and **your printer might not work properly or not boot anymore**. Check the documentation for more information: [Printer configuration](https://rinkhals-community.github.io/Rinkhals/about/printer-configuration/)
 
 A [quick start guide](https://rinkhals-community.github.io/Rinkhals/guides/rinkhals-quick-start/) is available to get Rinkhals up and running on your printer.
 
@@ -77,9 +77,9 @@ Either way, you'll need to:
 - Copy it in a directory named **aGVscF9zb3Nf** (or **update** for the Kobra 2 Pro in certain conditions) on a FAT32 USB drive (MBR, GPT is not supported)
 - Plug the USB drive in your printer
 
-More detailed information about the Rinkhals installer are available in the [documentation](https://rinkhals-community.github.io/Rinkhals/Rinkhals/rinkhals-installer/)
+More detailed information about the Rinkhals installer are available in the [documentation](https://rinkhals-community.github.io/Rinkhals/about/rinkhals-installer/)
 
-For more information about installation, firmware updates and details about specific situations, go to https://rinkhals-community.github.io/Rinkhals/Rinkhals/installation-and-firmware-updates/
+For more information about installation, firmware updates and details about specific situations, go to https://rinkhals-community.github.io/Rinkhals/about/installation-and-firmware-updates/
 
 
 <p align="center">
@@ -106,7 +106,7 @@ This UI allows you to manage installed apps, trigger an OTA update, reboot your 
 
 From the release pages, you'll find the installer-\*.swu files for your printer model. This is an interactive touch tool to install and update Rinkhals and system firmware updates.
 
-You can find more information in [the documentation](https://rinkhals-community.github.io/Rinkhals/Rinkhals/rinkhals-installer/)
+You can find more information in [the documentation](https://rinkhals-community.github.io/Rinkhals/about/rinkhals-installer/)
 
 ## Apps system
 

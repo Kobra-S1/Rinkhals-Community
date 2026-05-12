@@ -43,7 +43,7 @@ If you prefer a video, [Kanrog](https://www.youtube.com/@kanrogcreations) on Dis
 
 ## Documentation Structure
 
-- [Rinkhals](Rinkhals/index.md): Documentation about Rinkhals, its features and internals.
+- [Rinkhals](about/index.md): Documentation about Rinkhals, its features and internals.
 - [Guides](guides/index.md): High level guides for Simplyprint, Spoolman, and more.
 - [Printers](printers/index.md): Generic and specific documentation about the Anycubic Kobra series.
 - [Firmware](firmware/index.md): Reverse engineering and documentation about the original firmware.

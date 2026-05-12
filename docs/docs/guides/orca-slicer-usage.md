@@ -14,7 +14,7 @@ Download and install the latest OrcaSlicer application from: [Official OrcaSlice
 
 Make sure you have Rinkhals installed on your printer. 
 
-For the installation of Rinkhals, use [this guide](../Rinkhals/installation-and-firmware-updates.md).
+For the installation of Rinkhals, use [this guide](../about/installation-and-firmware-updates.md).
 
 When you first start OrcaSlicer, you will be prompted to select a printer preset. Look for your printer and the nozzle type you are using.
 

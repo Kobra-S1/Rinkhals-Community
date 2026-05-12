@@ -8,7 +8,7 @@ title: Rinkhals quick start guide
 
 - Go to the release page on GitHub: [Rinkhals releases](https://github.com/rinkhals-community/Rinkhals/releases)
 - Select and download the right update-\*.swu for your printer
-- Follow the install [instructions](../Rinkhals/installation-and-firmware-updates.md) for your printer.
+- Follow the install [instructions](../about/installation-and-firmware-updates.md) for your printer.
 
 ### Using the Rinkhals installer
 
