@@ -560,6 +560,8 @@ class MmuAceController:
         else:
             self.printer = RemotePrinterController(self.server, host)
 
+        self._last_gate_fingerprint: str = ""
+
         # Start periodic cache cleanup task (runs every 60 seconds)
         # Removes expired temperature cache entries to prevent slow memory leak
         asyncio.create_task(self._periodic_cache_cleanup())
@@ -1134,7 +1136,15 @@ class MmuAceController:
         current_filament = filament_hub.get("current_filament", "")
         self._sync_loaded_gate_from_current_filament(current_filament)
 
-        self._handle_status_update(force=True)
+        gates = [g for u in self.ace.units for g in u.gates]
+        fingerprint = str([
+            (g.index, g.spool_id, g.status, g.material, g.color)
+            for g in gates
+        ]) + f"|{self.ace.loaded_gate}"
+
+        if fingerprint != self._last_gate_fingerprint:
+            self._last_gate_fingerprint = fingerprint
+            self._handle_status_update(force=True)
 
     def get_status(self) -> MmuAceStatus:
 
