@@ -77,6 +77,10 @@ def _build_machine_module():
             self.original_calls.append(endpoint)
             return f"original:{endpoint}"
 
+        async def exec_sudo_command(self, command: str, tries: int = 1, timeout=2.):
+            self.original_calls.append(f"exec_sudo_command:{command}")
+            return ""
+
     machine_module.Machine = Machine
     sys.modules[MACHINE_NAME] = machine_module
     return machine_module
@@ -134,9 +138,9 @@ class KobraMachineRebootPatchTests(unittest.IsolatedAsyncioTestCase):
         self.kobra._schedule_native_machine_action = lambda action: scheduled.append(action)
 
         machine = self.machine_module.Machine()
-        result = await machine._handle_machine_request(DummyWebRequest("/machine/reboot"))
+        result = await machine.exec_sudo_command("systemctl reboot")
 
-        self.assertEqual(result, "ok")
+        self.assertEqual(result, "")
         self.assertEqual(scheduled, ["reboot"])
         self.assertEqual(machine.original_calls, [])
 
@@ -145,9 +149,9 @@ class KobraMachineRebootPatchTests(unittest.IsolatedAsyncioTestCase):
         self.kobra._schedule_native_machine_action = lambda action: scheduled.append(action)
 
         machine = self.machine_module.Machine()
-        result = await machine._handle_machine_request(DummyWebRequest("/machine/shutdown"))
+        result = await machine.exec_sudo_command("poweroff")
 
-        self.assertEqual(result, "ok")
+        self.assertEqual(result, "")
         self.assertEqual(scheduled, ["poweroff"])
         self.assertEqual(machine.original_calls, [])
 
@@ -156,25 +160,11 @@ class KobraMachineRebootPatchTests(unittest.IsolatedAsyncioTestCase):
         self.kobra._schedule_native_machine_action = lambda action: scheduled.append(action)
 
         machine = self.machine_module.Machine()
-        result = await machine._handle_machine_request(DummyWebRequest("/machine/restart"))
+        result = await machine.exec_sudo_command("systemctl restart moonraker")
 
-        self.assertEqual(result, "original:/machine/restart")
+        self.assertEqual(result, "")
         self.assertEqual(scheduled, [])
-        self.assertEqual(machine.original_calls, ["/machine/restart"])
-
-    async def test_reboot_request_preserves_container_guard(self):
-        scheduled = []
-        self.kobra._schedule_native_machine_action = lambda action: scheduled.append(action)
-
-        machine = self.machine_module.Machine()
-        machine.inside_container = True
-        machine.system_info["virtualization"]["virt_identifier"] = "docker"
-
-        with self.assertRaisesRegex(RuntimeError, "Cannot reboot from within a docker container"):
-            await machine._handle_machine_request(DummyWebRequest("/machine/reboot"))
-
-        self.assertEqual(scheduled, [])
-        self.assertEqual(machine.original_calls, [])
+        self.assertEqual(machine.original_calls, ["exec_sudo_command:systemctl restart moonraker"])
 
 
 if __name__ == "__main__":
