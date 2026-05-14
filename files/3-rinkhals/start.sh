@@ -11,16 +11,9 @@ quit() {
     echo
     log "/!\\ Startup failed, stopping Rinkhals..."
 
-    B=/sys/class/pwm/pwmchip0/pwm0
-    echo 0 > $B/enable; echo 0 > $B/duty_cycle
-    echo 3817000 > $B/period; echo 1526800 > $B/duty_cycle; echo 1 > $B/enable
-    usleep 300000; echo 0 > $B/enable; usleep 100000
-    echo 0 > $B/duty_cycle
-    echo 4545000 > $B/period; echo 1818000 > $B/duty_cycle; echo 1 > $B/enable
-    usleep 300000; echo 0 > $B/enable; usleep 100000
-    echo 0 > $B/duty_cycle
-    echo 5714000 > $B/period; echo 2285600 > $B/duty_cycle; echo 1 > $B/enable
-    usleep 600000; echo 0 > $B/enable
+    beep 500
+    msleep 500
+    beep 500
 
     ./stop.sh
     touch /useremain/rinkhals/.disable-rinkhals
@@ -292,10 +285,10 @@ for TARGET in $TARGETS; do
     fi
 done
 
-# Tweak processes priority to avoid MCU timing and more generally priting errors. (https://github.com/jbatonnet/Rinkhals/issues/128)
+# Tweak processes priority to avoid MCU timing and more generally priting errors. (https://github.com/rinkhals-community/Rinkhals/issues/128)
 rm -f /userdata/app/gk/rinkhals_gklib.cfg
 ln -sf /userdata/app/gk/printer_data/config/printer.generated.cfg /userdata/app/gk/rinkhals_gklib.cfg
-nice -n -20 ./gklib -a /tmp/unix_uds1 rinkhals_gklib.cfg >> $RINKHALS_LOGS/gklib.log 2>&1 &
+nice -n -5 ./gklib -a /tmp/unix_uds1 rinkhals_gklib.cfg >> $RINKHALS_LOGS/gklib.log 2>&1 &
 chrt -p 89 $(get_by_name ksoftirqd/0)
 
 sleep 2
@@ -303,7 +296,7 @@ sleep 2
 ./gkapi >> $RINKHALS_LOGS/gkapi.log 2>&1 &
 ./K3SysUi >> $RINKHALS_LOGS/K3SysUi.log 2>&1 &
 
-# On the kobra 2 pro this sleep causes that filement extrude does not work and auto leveling crashes. (https://github.com/jbatonnet/Rinkhals/issues/155)
+# On the kobra 2 pro this sleep causes that filement extrude does not work and auto leveling crashes. (https://github.com/rinkhals-community/Rinkhals/issues/155)
 if [ "$KOBRA_MODEL_CODE" != "K2P" ]; then
  sleep 2
 fi
@@ -375,14 +368,3 @@ rm /useremain/rinkhals/.reboot-marker 2> /dev/null
 
 echo
 log "Rinkhals started"
-
-ta_da() {
-    B=/sys/class/pwm/pwmchip0/pwm0
-    echo 0 > $B/enable; echo 0 > $B/duty_cycle
-    echo 2551000 > $B/period; echo 1020400 > $B/duty_cycle; echo 1 > $B/enable
-    usleep 180000; echo 0 > $B/enable; usleep 50000
-    echo 0 > $B/duty_cycle
-    echo 1912000 > $B/period; echo 764800 > $B/duty_cycle; echo 1 > $B/enable
-    usleep 280000; echo 0 > $B/enable
-}
-ta_da &

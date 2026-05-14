@@ -12,4 +12,4 @@ title: Anycubic Kobra 2 Pro
 
 ## Firmware history
 
-Check https://github.com/jbatonnet/Rinkhals.Firmwares/blob/main/manifests-anycubic/manifest-k2p.json
+Check https://github.com/rinkhals-community/Rinkhals.Firmwares/blob/main/manifests-anycubic/manifest-k2p.json

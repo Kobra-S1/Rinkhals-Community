@@ -696,10 +696,31 @@ class Kobra:
                         state = 'printing'
                     if state.lower() == 'onpause':
                         state = 'paused'
-                    if state.lower() in ['complete', 'print_complete', 'finished']:
+                    if state.lower() in ['complete', 'completed', 'print_complete', 'finished', 'finish', 'done']:
                         state = 'complete'
 
-                    # Ensures same string memory location for Moonraker job_state check (https://github.com/jbatonnet/Rinkhals/issues/118#issuecomment-2980916709)
+                    # Debounce GoKlipper's standby state due to race condition at end of print (#445)
+                    # GoKlipper emits "standby" then "complete" 1-2 seconds later, causing Moonraker to report "cancelled"
+                    if state.lower() == 'standby' and getattr(self, '_last_tracked_state', None) == 'printing':
+                        state = 'printing' # Keep it printing for now
+                        
+                        async def _apply_delayed_standby():
+                            import asyncio
+                            await asyncio.sleep(2.5)
+                            if getattr(self, '_last_tracked_state', None) == 'printing':
+                                setattr(self, '_last_tracked_state', 'standby')
+                                import time
+                                klippy_conn = self.server.lookup_component("klippy_connection", None)
+                                if klippy_conn:
+                                    klippy_conn._process_status_update(time.time(), {'print_stats': {'state': 'standby'}})
+
+                        if not getattr(self, '_delayed_standby_task', None) or getattr(self, '_delayed_standby_task').done():
+                            # Run the debouncer
+                            setattr(self, '_delayed_standby_task', self.server.get_event_loop().create_task(_apply_delayed_standby()))
+
+                    setattr(self, '_last_tracked_state', state)
+
+                    # Ensures same string memory location for Moonraker job_state check (https://github.com/rinkhals-community/Rinkhals/issues/118#issuecomment-2980916709)
                     if state not in self._states_cache:
                         self._states_cache.append(state)
                     state = [ s for s in self._states_cache if s == state ][0]
@@ -851,55 +872,43 @@ class Kobra:
         setattr(Machine, '_parse_network_interfaces', _parse_network_interfaces)
         logging.debug(f'  After: {Machine._parse_network_interfaces}')
 
-    async def _run_native_machine_reboot(self):
+    async def _run_native_machine_action(self, action: str):
         await asyncio.sleep(0.1)
 
         try:
             subprocess.Popen(
-                ['sh', '-c', 'sync && /sbin/reboot'],
+                ['sh', '-c', f'sync && /sbin/{action}'],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         except Exception:
-            logging.exception('[Kobra] Failed to launch native host reboot')
+            logging.exception(f'[Kobra] Failed to launch native host {action}')
 
-    def _schedule_native_machine_reboot(self):
-        logging.info('[Kobra] Scheduling native host reboot')
-        self.server.get_event_loop().create_task(self._run_native_machine_reboot())
+    def _schedule_native_machine_action(self, action: str):
+        logging.info(f'[Kobra] Scheduling native host {action}')
+        self.server.get_event_loop().create_task(self._run_native_machine_action(action))
 
     def patch_machine_power_actions(self):
         from .machine import Machine
 
-        def wrap__handle_machine_request(original__handle_machine_request):
-            async def _handle_machine_request(me, web_request):
-                ep = web_request.get_endpoint()
+        logging.info('> Patching machine exec_sudo_command handling...')
 
-                if ep == "/machine/reboot":
-                    if me.inside_container:
-                        virt_id = me.system_info.get('virtualization', {}).get(
-                            'virt_identifier', 'none'
-                        )
-                        raise me.server.error(
-                            f"Cannot {ep.split('/')[-1]} from within a {virt_id} container"
-                        )
+        original_exec_sudo_command = Machine.exec_sudo_command
 
-                    logging.info('[Kobra] Intercepting machine reboot request')
-                    self._schedule_native_machine_reboot()
-                    return "ok"
-
-                return await original__handle_machine_request(me, web_request)
-
-            return _handle_machine_request
-
-        logging.info('> Patching machine reboot handling...')
-
-        logging.debug(f'  Before: {Machine._handle_machine_request}')
-        setattr(
-            Machine,
-            '_handle_machine_request',
-            wrap__handle_machine_request(Machine._handle_machine_request)
-        )
-        logging.debug(f'  After: {Machine._handle_machine_request}')
+        async def wrap_exec_sudo_command(me, command: str, tries: int = 1, timeout=2.):
+            if command in ("systemctl reboot", "reboot", "/sbin/reboot"):
+                logging.info('[Kobra] Intercepting sudo command for reboot')
+                self._schedule_native_machine_action("reboot")
+                return ""
+            elif command in ("systemctl poweroff", "systemctl halt", "poweroff", "halt", "/sbin/poweroff", "/sbin/halt"):
+                logging.info('[Kobra] Intercepting sudo command for shutdown')
+                self._schedule_native_machine_action("poweroff")
+                return ""
+            
+            return await original_exec_sudo_command(me, command, tries, timeout)
+            
+        Machine.exec_sudo_command = wrap_exec_sudo_command
+        logging.info('> Patched Machine.exec_sudo_command')
 
     def patch_spoolman(self):
         from .spoolman import SpoolManager

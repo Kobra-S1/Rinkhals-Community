@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # From a Windows machine:
-#   docker run --rm -it -e KOBRA_MODEL_CODE="K3" -v .\build:/build -v .\files:/files ghcr.io/jbatonnet/rinkhals/build /build/swu-tools/ssh/build-swu.sh
+#   docker run --rm -it -e KOBRA_MODEL_CODE="K3" -v .\build:/build -v .\files:/files ghcr.io/rinkhals-community/rinkhals/build /build/swu-tools/ssh/build-swu.sh
 
 
 if [ "$KOBRA_MODEL_CODE" = "" ]; then
