@@ -1161,13 +1161,14 @@ class MmuAceController:
         gate_speed_override = [gate.speed_override if gate.speed_override >= 0 else 100 for gate in gates]
         gate_vendor = [gate.vendor if hasattr(gate, 'vendor') and gate.vendor else "" for gate in gates]
 
-        # Determine filament_pos based on loaded_gate vs selected gate
-        # This controls Load/Unload button visibility in Happy Hare GUI
-        if self.ace.loaded_gate != TOOL_GATE_UNKNOWN and self.ace.loaded_gate == self.ace.gate:
-            # Currently selected gate is the one that's loaded -> show LOADED (Unload button)
+        # Determine filament_pos based on whether anything is physically loaded.
+        # This controls Load/Unload button visibility in Happy Hare GUI.
+        # We do NOT require the selected gate to match loaded_gate: the user may have
+        # selected a different gate while gate N is still threaded, and the Unload button
+        # must still appear so they can retract the loaded filament.
+        if self.ace.loaded_gate != TOOL_GATE_UNKNOWN:
             filament_pos = FILAMENT_POS_LOADED
         else:
-            # Either no gate loaded, or different gate selected -> show UNLOADED (Load button)
             filament_pos = FILAMENT_POS_UNLOADED
 
         filament_name = "Unknown"
