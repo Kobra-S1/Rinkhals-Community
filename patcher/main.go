@@ -70,7 +70,12 @@ func main() {
 			log.Printf("Successfully replaced 'Service Support' with 'Rinkhals'")
 		}
 
-		// Step 2: Locate payload injection site and write string data
+		// 2. Neutralise the "Non official firmware" detection popup (K3/K3M/K3V2 only).
+		//    isCustomFirmware() scans /proc/*/cmdline for "sshd", "adbd", "nginx".
+		//    On KS1/KS1M/K2P the symbol is absent and this call is a no-op.
+		p.PatchIsCustomFirmware()
+
+		// Step 3: Locate payload injection site and write string data
 		space, err := p.SetupPayloadSpace()
 		if err != nil {
 			log.Fatalf("Failed to setup payload space in AcSupportRefreshEv: %v", err)
