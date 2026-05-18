@@ -264,6 +264,7 @@ dev-deploy ip: (require "swu-update" SWU_DIR / "update_swu/setup.tar.gz")
         --mount type=bind,source={{workspace}}/build,target=/build \
         --mount type=bind,source=$SWU_DIR,target=/build/dist \
         -e KOBRA_IP={{ip}} \
+        --entrypoint /bin/sh \
         rclone/rclone:1.69.1 /build/deploy-dev.sh
     echo "Development build deployed to {{ip}}"
 
