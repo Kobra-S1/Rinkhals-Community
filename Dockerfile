@@ -5,7 +5,7 @@
 # Note: Buildkit and buildx are required, but should already be enabled by default in most nonlegacy Docker installations.
 #
 # Enable QEMU for ARMv7 stages (needed once per session):
-# - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+# - docker run --rm --privileged tonistiigi/binfmt --install all
 #
 # Building with local filesystem output (https://docs.docker.com/build/exporters/local-tar/):
 # - docker build --output type=local,dest=./build/dist .
