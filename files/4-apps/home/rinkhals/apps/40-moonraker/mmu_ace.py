@@ -778,6 +778,24 @@ class MmuAceController:
         for _ in range(retry):
             success = False
             try:
+                # Check if filament_hub is in the object list before querying it.
+                # This prevents a fatal crash in Anycubic gklib on some firmware versions (e.g. KS1M 2.6.9.3 without ACE)
+                # where querying a non-existent filament_hub causes a nil pointer panic.
+                try:
+                    list_result = await self.server.lookup_component("klippy").request(WebRequest("objects/list"))
+                    if list_result and "objects" in list_result and "filament_hub" not in list_result["objects"]:
+                        logging.info("filament_hub not in objects/list, skipping ACE initialization.")
+                        self._disable_ace("filament_hub object unavailable on this printer")
+                        return
+                    # also fallback to list_endpoints
+                    endpoints = await self.printer.send_request("list_endpoints", {})
+                    if endpoints and isinstance(endpoints, list) and not any("filament_hub" in str(e) for e in endpoints):
+                        logging.info("filament_hub not in list_endpoints, skipping ACE initialization.")
+                        self._disable_ace("filament_hub endpoints unavailable on this printer")
+                        return
+                except Exception as eval_e:
+                    logging.debug(f"Pre-check for filament_hub failed: {eval_e}")
+
                 # await self._load_mmu_ace_config()
                 klippy_apis: KlippyAPI = self.server.lookup_component("klippy_apis")
                 result = await klippy_apis.query_objects({ "filament_hub": None })
