@@ -31,7 +31,7 @@ echo "==> Registering QEMU binfmt_misc for ARM..."
 qemu_ok=false
 for i in $(seq 1 30); do
     if docker info >/dev/null 2>&1; then
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes && qemu_ok=true
+        docker run --rm --privileged tonistiigi/binfmt --install all && qemu_ok=true
         break
     fi
     sleep 1

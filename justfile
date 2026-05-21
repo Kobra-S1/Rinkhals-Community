@@ -94,7 +94,7 @@ buildroot-rebuild +packages: (require "buildroot" BUILDROOT_OUTPUT_DIR / "build/
     cp {{workspace}}/build/1-buildroot/.config {{BUILDROOT_OUTPUT_DIR}}/.config
     cp {{workspace}}/build/1-buildroot/busybox.config {{buildroot_dir}}/busybox.config
     cd {{buildroot_dir}}
-    export KCONFIG_NOISILENTUPDATE=1
+    export KCONFIG_NOSILENTUPDATE=1
     make O={{BUILDROOT_OUTPUT_DIR}} BR2_EXTERNAL={{EXTERNAL_DIR}} olddefconfig
     echo "{{packages}}" | tr ' ' '\n' | while read -r p; do
         echo "Rebuilding: $p"
@@ -264,6 +264,7 @@ dev-deploy ip: (require "swu-update" SWU_DIR / "update_swu/setup.tar.gz")
         --mount type=bind,source={{workspace}}/build,target=/build \
         --mount type=bind,source=$SWU_DIR,target=/build/dist \
         -e KOBRA_IP={{ip}} \
+        --entrypoint /bin/sh \
         rclone/rclone:1.69.1 /build/deploy-dev.sh
     echo "Development build deployed to {{ip}}"
 
@@ -295,6 +296,6 @@ setup-qemu:
         echo "QEMU ARM handler already registered"
     else
         echo "Registering QEMU binfmt_misc for ARM..."
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        docker run --rm --privileged tonistiigi/binfmt --install all
         echo "QEMU ARM handler registered successfully"
     fi
